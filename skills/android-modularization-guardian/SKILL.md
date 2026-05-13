@@ -1,6 +1,6 @@
 ---
 name: android-modularization-guardian
-description: Use when reviewing Android project modularization: Gradle module graph, feature/core/app module responsibilities, dependency direction violations (feature depending on feature impl, core depending on feature), granularity decisions, and per-module documentation requirements.
+description: Use when reviewing Android project modularization — Gradle module graph, feature/core/app module responsibilities, dependency direction violations (feature depending on feature impl, core depending on feature), granularity decisions, and per-module documentation requirements.
 ---
 
 # Android Modularization Guardian

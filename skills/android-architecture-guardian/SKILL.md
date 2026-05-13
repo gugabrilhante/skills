@@ -1,6 +1,6 @@
 ---
 name: android-architecture-guardian
-description: Use when reviewing Android code for architectural correctness: MVVM/MVI patterns, Unidirectional Data Flow, UI layer passivity, ViewModel responsibilities, UseCase design, Domain layer purity, and data model leakage between layers.
+description: Use when reviewing Android code for architectural correctness — MVVM/MVI patterns, Unidirectional Data Flow, UI layer passivity, ViewModel responsibilities, UseCase design, Domain layer purity, and data model leakage between layers.
 ---
 
 # Android Architecture Guardian
