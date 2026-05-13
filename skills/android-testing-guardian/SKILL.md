@@ -168,21 +168,162 @@ No mocks.
 
 # Phase 5 — UI / E2E Tests
 
-Add missing UI tests for critical user journeys:
+Add missing UI tests AND audit existing UI tests for flaky patterns.
+
+## Critical user journeys to cover
 
 - create flow
 - edit flow
 - delete flow
 - navigation flow
 
-Use:
+## Frameworks
 
-- Espresso
-- Compose testing APIs
+- Espresso (View system)
+- Compose testing APIs (`ComposeTestRule`)
 
-Support the project's existing DI setup:
+Support the project's existing DI setup: Hilt or Koin.
 
-Hilt or Koin
+---
+
+## Anti-flaky rules (apply when writing AND reviewing)
+
+Never use text-based matchers when a stable selector exists.
+
+| Flaky (avoid) | Stable (use instead) |
+|---|---|
+| `onView(withText("Submit"))` | `onView(withId(R.id.btn_submit))` |
+| `onNodeWithText("Submit")` | `onNodeWithTag("btn_submit")` |
+| `Thread.sleep(2000)` | `IdlingResource` or `waitUntil {}` |
+| child index matchers | explicit test tags / IDs |
+
+**Compose:** add `.testTag("tag")` to every interactive element and key assertion node. Reference with `onNodeWithTag("tag")`. Never assert on display strings — they break on localization and copy changes.
+
+**View system:** assign `android:id` to all interactive elements. Use `contentDescription` for accessibility + testing when no ID is possible.
+
+---
+
+## Espresso — patterns and setup
+
+### Page Object Pattern
+
+Encapsulate each screen's interactions in a dedicated object. Keep test logic out of page objects.
+
+```kotlin
+class LoginScreen {
+    fun fillEmail(email: String) = apply {
+        onView(withId(R.id.et_email)).perform(typeText(email), closeSoftKeyboard())
+    }
+    fun fillPassword(password: String) = apply {
+        onView(withId(R.id.et_password)).perform(typeText(password), closeSoftKeyboard())
+    }
+    fun clickLogin() = apply { onView(withId(R.id.btn_login)).perform(click()) }
+    fun assertHomeVisible() { onView(withId(R.id.home_root)).check(matches(isDisplayed())) }
+}
+
+// Usage in test:
+LoginScreen().fillEmail("user@test.com").fillPassword("secret").clickLogin().assertHomeVisible()
+```
+
+### Network mocking — MockWebServer
+
+Swap the base URL at the DI level so production network is never hit in instrumented tests.
+
+```kotlin
+// Hilt: replace module in test
+@UninstallModules(NetworkModule::class)
+@HiltAndroidTest
+class LoginTest {
+    private val server = MockWebServer()
+
+    @Module @InstallIn(SingletonComponent::class)
+    object FakeNetworkModule {
+        @Provides fun provideRetrofit(): Retrofit =
+            Retrofit.Builder().baseUrl(server.url("/")).build()
+    }
+
+    @Before fun setUp() { server.start() }
+    @After fun tearDown() { server.shutdown() }
+
+    @Test fun login_success() {
+        server.enqueue(MockResponse().setBody("""{"token":"abc"}""").setResponseCode(200))
+        // ... run test
+    }
+}
+```
+
+For Koin: override the module with `overridingModule { single { FakeApi() } }` in `@Before`.
+
+### Coroutines and idling resources
+
+Never use `Thread.sleep()`. Choose the right synchronisation mechanism:
+
+| Scenario | Solution |
+|---|---|
+| Espresso + async background work | `CountingIdlingResource` registered in `IdlingRegistry` |
+| Compose UI waiting | `composeRule.waitUntil(3_000) { onNodeWithTag("x").fetchSemanticsNode() != null }` |
+| ViewModel / coroutine dispatch | inject `TestDispatcher`; call `advanceUntilIdle()` |
+
+```kotlin
+// CountingIdlingResource example
+val idlingResource = CountingIdlingResource("network")
+// increment before network call, decrement in callback
+IdlingRegistry.getInstance().register(idlingResource)
+// unregister in @After
+```
+
+### Gradle Managed Devices
+
+Declare managed devices in `build.gradle.kts` for reproducible CI emulators — no manual AVD setup required.
+
+```kotlin
+testOptions {
+    managedDevices {
+        devices {
+            create<ManagedVirtualDevice>("pixel6Api34") {
+                device = "Pixel 6"
+                apiLevel = 34
+                systemImageSource = "google"
+            }
+        }
+    }
+}
+```
+
+Run with: `./gradlew pixel6Api34DebugAndroidTest`
+
+Requires AGP 8.1+ and Gradle 8.0+. Compose idling is handled automatically.
+
+### Test sharding / parallel execution
+
+Shard when the instrumented suite exceeds ~100 tests or CI timeout is a concern.
+
+```bash
+# Gradle Managed Devices — built-in sharding
+./gradlew pixel6Api34DebugAndroidTest -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect --shard 2
+
+# Manual sharding with numShards / shardIndex (custom runner)
+adb shell am instrument -w \
+  -e numShards 3 -e shardIndex 0 \
+  com.example/.TestRunner
+```
+
+For Firebase Test Lab: `--num-shards N` distributes across Google-managed devices.
+
+---
+
+## Flaky test audit checklist
+
+When reviewing existing UI tests, flag any test that:
+
+- [ ] uses `withText()` or `onNodeWithText()` as the primary matcher
+- [ ] calls `Thread.sleep()` or `SystemClock.sleep()`
+- [ ] uses child index or screen-position matchers
+- [ ] has no `IdlingResource` registration despite async work
+- [ ] asserts on hardcoded localized strings
+- [ ] relies on animation timing without `disableAnimations`
+
+For each flagged test: replace the matcher or synchronisation mechanism using the patterns above. Do not change test intent — only the selector or wait strategy.
 
 ---
 

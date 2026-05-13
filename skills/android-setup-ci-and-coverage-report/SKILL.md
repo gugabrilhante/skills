@@ -1,6 +1,6 @@
 ---
-name: android-github-actions-ci
-description: "Use when setting up GitHub Actions CI for an Android project. Creates workflows for build, unit tests, UI/instrumented tests, JaCoCo coverage, and Codecov integration — adapted to the project's DI framework, build DSL, module structure, and JDK version."
+name: android-setup-ci-and-coverage-report
+description: "Use when setting up or fixing GitHub Actions CI and coverage reporting for an Android project. Creates workflows for build, unit tests, UI/instrumented tests, JaCoCo coverage, and Codecov integration — adapted to the project's DI framework, build DSL, module structure, and JDK version."
 ---
 
 # Android GitHub Actions CI

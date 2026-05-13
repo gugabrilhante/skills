@@ -38,13 +38,12 @@ git --version
 
 ### CI & Coverage
 
-- [`android-github-actions-ci`](skills/android-github-actions-ci/SKILL.md) — set up GitHub Actions workflows (build, unit tests, UI/instrumented tests, JaCoCo coverage, Codecov) adapted to the project's DI framework, build DSL, module structure, and JDK version.
+- [`android-setup-ci-and-coverage-report`](skills/android-setup-ci-and-coverage-report/SKILL.md) — set up or fix GitHub Actions workflows (build, unit tests, UI/instrumented tests, JaCoCo coverage, Codecov) adapted to the project's DI framework, build DSL, module structure, and JDK version.
 
 ### Quality & Testing
 
 - [`android-testing-guardian`](skills/android-testing-guardian/SKILL.md) — analyze test coverage and add missing tests for domain, data, presentation, and UI layers. Identifies testability blockers.
 - [`android-testability-guardian`](skills/android-testability-guardian/SKILL.md) — eliminate static coupling and hidden dependencies; enforce UI layer boundaries in Compose (business logic in Composables, ViewModel smells, side-effect misuse, hardcoded values); decide when a new abstraction is justified using a three-layer pragmatic filter.
-- [`android-ci-coverage-guardian`](skills/android-ci-coverage-guardian/SKILL.md) — maintain >90% unit test coverage, identify coverage gaps after features are written, detect flaky tests and orphan classes.
 
 ## License
 
