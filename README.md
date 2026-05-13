@@ -14,7 +14,8 @@ npx skills add /android-guardian-skills
 
 ### Architecture
 
-- [`android-architecture-guardian`](skills/android-architecture-guardian/SKILL.md) — enforce Clean Architecture layer boundaries, feature isolation, ViewModel size, and UseCase responsibility in multi-module Android projects.
+- [`android-architecture-guardian`](skills/android-architecture-guardian/SKILL.md) — enforce MVVM/MVI patterns, Unidirectional Data Flow, UI layer passivity, ViewModel responsibilities, UseCase design, Domain layer purity, and data model leakage between layers.
+- [`android-modularization-guardian`](skills/android-modularization-guardian/SKILL.md) — enforce Gradle module graph correctness: app/feature/core responsibilities, dependency direction (no feature→feature impl, no core→feature), granularity decisions, and per-module documentation.
 - [`android-ui-boundary-guardian`](skills/android-ui-boundary-guardian/SKILL.md) — keep the Jetpack Compose UI layer dumb and reactive: flag business logic in Composables, ViewModel smells, incorrect side-effect usage, and hardcoded values.
 
 ### Quality & Testing
