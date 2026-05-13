@@ -1,13 +1,13 @@
 ---
 name: android-testability-guardian
-description: Analyzes code for testability risks by detecting hidden dependencies, non-determinism, side effects, and global state/framework coupling.
+description: "Analyzes code for testability risks by detecting hidden dependencies, non-determinism, side effects, and global state/framework coupling. Also enforces UI layer boundaries in Jetpack Compose: business logic in Composables, ViewModel smells, incorrect side-effect usage, and hardcoded values."
 ---
 
 # Android Testability Guardian
 
 ## Role
 
-Testing expert. Goal: make the codebase 100% testable by eliminating static coupling, hidden dependencies, and non-deterministic behavior.
+Testing expert and UI architecture guardian. Goal: make the codebase 100% testable by eliminating static coupling, hidden dependencies, and non-deterministic behavior — and keep the UI layer dumb and reactive.
 
 ## Behavior-Driven Testability Analysis
 
@@ -30,6 +30,7 @@ Detect code that produces external behavior that is hard to observe or assert.
 - **Signs:** `Log.*`, `Toast.*`, `NotificationManager`, `AlarmManager`, file writes, network calls, analytics events.
 - **Question:** "Does this code produce external behavior that cannot be easily asserted?"
 - **Action:** Flag as testability risk.
+- **In Compose:** `LaunchedEffect`, `SideEffect`, and `DisposableEffect` must be used for lifecycle concerns only — never for business logic. Business logic inside these blocks cannot be unit-tested without the Compose runtime.
 
 ### 4. Threading / Scheduling
 Detect code coupled to global thread infrastructure.
@@ -58,8 +59,10 @@ For every suspicious dependency, perform a multi-layer analysis before suggestin
 ### 1. Layer Analysis
 Is this dependency allowed in this layer according to Clean Architecture?
 - **Domain:** Must be pure Kotlin. Any `android.*` import (except `@Inject`) is a critical violation.
-- **Presentation (ViewModel):** Must not depend on Room, Retrofit, or Android Views.
-- **UI (Compose):** Must not contain business logic.
+- **Presentation (ViewModel):** Must not depend on Room, Retrofit, or Android Views. Flag these specific smells:
+  - Accessing `String` resources directly — use resource IDs or string wrapper types instead.
+  - Triggering navigation via `Context` directly — use a `NavigationEvent` Flow consumed by the UI.
+- **UI (Compose):** Must not contain business logic. Flag `if/else` in Composables that decide business outcomes — those decisions belong in the `ViewModel` or `UseCase`. Also flag hardcoded strings, dimensions, or colors; move them to `strings.xml` or the design system `Theme`.
 
 ### 2. Existing Abstractions
 Search the codebase for existing abstractions (`Logger`, `ClockProvider`, `DispatcherProvider`, `DeviceInfoProvider`, etc.) to prefer consistency over novelty.
@@ -83,3 +86,10 @@ When a testability issue is found, justify the refactor:
 - Replace `object` singletons with regular classes injected via Hilt/constructor.
 - Extract interfaces for module boundaries.
 - Prefer `Fake` implementations over heavy mocks for complex data layers.
+
+## Compose UI Patterns (Enforced)
+
+- Every screen must have a single `UiState` (data class) and a single `UiEvent` (sealed class/interface).
+- Split Composables into two layers:
+  - **Screen** (stateful): wires the ViewModel, collects state, passes it down.
+  - **Content** (stateless): receives state and callbacks only — fully previewable and unit-testable in isolation.
