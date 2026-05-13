@@ -1,46 +1,82 @@
 ---
 name: android-testability-guardian
-description: Use when reviewing Android code that calls Calendar.getInstance(), System.currentTimeMillis(), UUID.randomUUID(), object singletons, extension functions with I/O, or classes that require more than 5 mock setups in a single test — or when deciding whether a new abstraction is justified for testability.
+description: Analyzes code for testability risks by detecting hidden dependencies, non-determinism, side effects, and global state/framework coupling.
 ---
 
 # Android Testability Guardian
 
 ## Role
 
-Testing expert. Goal: make the codebase 100% testable by eliminating static coupling and hidden dependencies.
+Testing expert. Goal: make the codebase 100% testable by eliminating static coupling, hidden dependencies, and non-deterministic behavior.
 
-## Key Checks
+## Behavior-Driven Testability Analysis
 
-1. **Static Dependencies:** Flag direct calls to `Calendar.getInstance()`, `System.currentTimeMillis()`, or `UUID.randomUUID()` inside business logic. Suggest injecting a `TimeProvider` or `IdProvider`.
-2. **Constructor Injection:** Every external dependency MUST be passed via constructor — no service locator, no `object` access inside logic.
-3. **Mocking Complexity:** If a test requires more than 5 `every { ... }` blocks, the class has too many responsibilities. Suggest a refactor.
-4. **Extension Functions:** Flag extension functions that perform I/O or access global state (e.g., `String.toLocalResource()`).
-5. **Private Logic:** If a method needs to be `public` only for testing, extract it into a helper class or UseCase instead.
-6. **Boilerplate Tests:** Flag and suggest removal of default generated tests (`ExampleUnitTest`, `ExampleInstrumentedTest`) that contain only placeholder assertions.
+Instead of detecting specific APIs, inspect code for behaviors that introduce testability risks:
 
-## Dependency Critical Analysis
+### 1. Global State Access
+Detect code that reads global system state or uses static coupling.
+- **Signs:** `object` singletons, companion object access, `System.*`, `Build.*`, `Locale.*`, `TimeZone.*`, static utility calls.
+- **Question:** "Does this code read global system state?"
+- **Action:** Flag as testability risk if accessed directly within logic.
 
-Before suggesting a refactor for testability, perform a multi-layer analysis to avoid over-engineering.
+### 2. Non-Deterministic Dependencies
+Detect code whose behavior changes between test runs.
+- **Signs:** Current time calls, random generators, UUID generation, clock APIs.
+- **Question:** "Will this behavior change between test runs?"
+- **Action:** Flag as testability risk.
+
+### 3. Side Effects
+Detect code that produces external behavior that is hard to observe or assert.
+- **Signs:** `Log.*`, `Toast.*`, `NotificationManager`, `AlarmManager`, file writes, network calls, analytics events.
+- **Question:** "Does this code produce external behavior that cannot be easily asserted?"
+- **Action:** Flag as testability risk.
+
+### 4. Threading / Scheduling
+Detect code coupled to global thread infrastructure.
+- **Signs:** `Dispatchers.IO`, `Dispatchers.Default`, `GlobalScope`, `Thread`, `Handler`, `delay` with real scheduler.
+- **Question:** "Is execution coupled to global thread infrastructure?"
+- **Action:** Flag as testability risk.
+
+### 5. Environment Dependencies
+Detect logic that depends on device or OS state.
+- **Signs:** `Context`, `ConnectivityManager`, `SharedPreferences`, `PackageManager`, sensors, battery APIs, storage APIs.
+- **Question:** "Does this logic depend on device or OS state?"
+- **Action:** Flag as testability risk.
+
+## Key Checks (Structural)
+
+1. **Constructor Injection:** Every external dependency MUST be passed via constructor — no service locator, no `object` access inside logic.
+2. **Mocking Complexity:** If a test requires more than 5 `every { ... }` blocks, the class has too many responsibilities. Suggest a refactor.
+3. **Extension Functions:** Flag extension functions that perform I/O or access global state.
+4. **Private Logic:** If a method needs to be `public` only for testing, extract it into a helper class or UseCase instead.
+5. **Boilerplate Tests:** Flag and suggest removal of default generated tests (`ExampleUnitTest`, `ExampleInstrumentedTest`).
+
+## Review Strategy
+
+For every suspicious dependency, perform a multi-layer analysis before suggesting a refactor:
 
 ### 1. Layer Analysis
-
 Is this dependency allowed in this layer according to Clean Architecture?
 - **Domain:** Must be pure Kotlin. Any `android.*` import (except `@Inject`) is a critical violation.
 - **Presentation (ViewModel):** Must not depend on Room, Retrofit, or Android Views.
 - **UI (Compose):** Must not contain business logic.
 
-### 2. Reuse Analysis
+### 2. Existing Abstractions
+Search the codebase for existing abstractions (`Logger`, `ClockProvider`, `DispatcherProvider`, `DeviceInfoProvider`, etc.) to prefer consistency over novelty.
 
-Before creating a new `Provider` or `Wrapper`, search the codebase for existing abstractions (`ClockProvider`, `DispatcherProvider`, etc.). Prefer consistency over novelty.
+### 3. Refactor Cost vs. Benefit
+Would introducing an abstraction significantly reduce test complexity and cross-layer pollution?
 
-### 3. Creation Filter (The "Pragmatic" Filter)
+## Output Rules
 
-Only suggest a new abstraction if the dependency:
-- Crosses architectural layers incorrectly.
-- Is a `final` class or system service (`AlarmManager`, `ConnectivityManager`) that cannot be mocked.
-- Accesses static global state that prevents deterministic testing.
+When a testability issue is found, justify the refactor:
+1. **Harm:** Why this dependency harms testability (e.g., "introduces non-determinism", "hard-to-assert side effect").
+2. **Layer Violation:** Why this layer should not own this dependency.
+3. **Reuse:** Whether an existing abstraction can be reused.
+4. **Strategy:** The safest refactor strategy (e.g., "inject a Logger interface", "move to infrastructure boundaries").
 
-Always justify: explain *why* the refactor is necessary, *why* reuse was not possible, and the specific impact on the Testability vs. Complexity trade-off.
+**Example Output:**
+"`Log.e()` introduces Android framework coupling and external side effects inside a repository. Repositories should remain platform-agnostic when possible. Search found no existing Logger abstraction. Recommendation: inject a Logger interface or move logging to infrastructure boundaries."
 
 ## Refactor Strategies
 

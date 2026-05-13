@@ -20,6 +20,7 @@ npx skills add gugabrilhante/skills
 
 ### Quality & Testing
 
+- [`android-testing-guardian`](skills/android-testing-guardian/SKILL.md) — analyze test coverage and add missing tests for domain, data, presentation, and UI layers. Identifies testability blockers.
 - [`android-testability-guardian`](skills/android-testability-guardian/SKILL.md) — eliminate static coupling and hidden dependencies; decide when a new abstraction is justified for testability using a three-layer pragmatic filter.
 - [`android-ci-coverage-guardian`](skills/android-ci-coverage-guardian/SKILL.md) — maintain >90% unit test coverage, identify coverage gaps after features are written, detect flaky tests and orphan classes.
 
