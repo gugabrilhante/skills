@@ -7,7 +7,7 @@ A set of AI skills for Android development with Clean Architecture, Jetpack Comp
 With the [skills CLI](https://skills.sh):
 
 ```
-npx skills add /android-guardian-skills
+npx skills add gugabrilhante/skills
 ```
 
 ## Skills
