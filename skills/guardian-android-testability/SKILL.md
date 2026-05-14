@@ -63,7 +63,7 @@ Is this dependency allowed in this layer according to Clean Architecture?
 - **Presentation (ViewModel):** Must not depend on Room, Retrofit, or Android Views. `java.io.*` file I/O is also forbidden here — inject a repository or file-access abstraction instead. Flag these specific smells:
   - Accessing `String` resources directly — use resource IDs or string wrapper types instead.
   - Triggering navigation via `Context` directly — use a `NavigationEvent` Flow consumed by the UI.
-- **UI (Compose):** Must not contain business logic. Flag `if/else` in Composables that decide business outcomes — those decisions belong in the `ViewModel` or `UseCase`. Also flag hardcoded strings, dimensions, or colors; move them to `strings.xml` or the design system `Theme`.
+- **UI (Compose):** Must not contain business logic. Flag `if/else` in Composables that decide business outcomes — those decisions belong in the `ViewModel` or `UseCase`. Also flag hardcoded strings, dimensions, or colors; move them to `strings.xml` or the design system `Theme`. When moving strings to resources, also add the key to all available translation files in the app if it's missing, but never modify or overwrite any existing translations.
 
 ### 2. Existing Abstractions
 Search the codebase for existing abstractions (`Logger`, `ClockProvider`, `DispatcherProvider`, `DeviceInfoProvider`, etc.) to prefer consistency over novelty.

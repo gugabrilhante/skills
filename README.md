@@ -28,22 +28,49 @@ npx -v
 git --version
 ```
 
-## Skills
+## Action Skills
+
+Use these skills to execute specific tasks in your project. They analyze your codebase and perform complex operations automatically.
+
+### 🚀 Create New Feature
+Scaffold a complete, production-ready feature with Clean Architecture, DI, and tests.
+- **Skill:** [`android-create-new-feature`](skills/android-create-new-feature/SKILL.md)
+- **Como usar:**
+  Carregue a skill e execute o prompt:
+  > "Crie uma nova feature de [Nome da Feature] que [Descrição das funcionalidades]"
+
+### 🛠 Refactor for Testability
+Eliminate technical debt, fix architecture violations, and improve test coverage. Pode ser usada também para fazer pequenas correções de bugs garantindo que o código resultante seja testável e possua cobertura.
+- **Skill:** [`android-refactor-for-testability`](skills/android-refactor-for-testability/SKILL.md)
+- **Como usar:**
+  Carregue a skill e execute um dos prompts:
+  > "Analise a classe [NomeDaClasse] e refatore para melhorar a testabilidade"
+  > "Revise o módulo [nome-do-modulo] e adicione os testes que faltam"
+  > "Corrija o bug [descrição do bug] garantindo a testabilidade da solução"
+
+### ⚙️ Setup CI & Coverage
+Configura automaticamente pipelines de CI robustos no GitHub Actions. Analisa o projeto (DI, Build DSL, módulos) para criar workflows de build, testes (Unit & UI) e relatórios de cobertura (JaCoCo + Codecov).
+- **Skill:** [`android-setup-ci-and-coverage-report`](skills/android-setup-ci-and-coverage-report/SKILL.md)
+- **Como usar:**
+  Carregue a skill e execute o prompt:
+  > "Configure o CI e relatório de cobertura para este projeto"
+
+---
+
+## Guardian Skills (Rules & Enforcement)
+
+These skills define the standards and provide guidance on best practices.
 
 ### Architecture
 
-- [`android-architecture-guardian`](skills/android-architecture-guardian/SKILL.md) — enforce MVVM/MVI patterns, Unidirectional Data Flow, UI layer passivity, ViewModel responsibilities, UseCase design, Domain layer purity, and data model leakage between layers.
-- [`android-modularization-guardian`](skills/android-modularization-guardian/SKILL.md) — enforce Gradle module graph correctness: app/feature/core responsibilities, dependency direction (no feature→feature impl, no core→feature), granularity decisions, and per-module documentation.
-- [`package-architecture-guardian`](skills/package-architecture-guardian/SKILL.md) — evolve project structure from layer-first to feature-first, manage package sprawl, and validate module boundaries in Android and KMP projects.
-
-### CI & Coverage
-
-- [`android-setup-ci-and-coverage-report`](skills/android-setup-ci-and-coverage-report/SKILL.md) — set up or fix GitHub Actions workflows (build, unit tests, UI/instrumented tests, JaCoCo coverage, Codecov) adapted to the project's DI framework, build DSL, module structure, and JDK version.
+- [`guardian-android-architecture`](skills/guardian-android-architecture/SKILL.md) — enforce MVVM/MVI patterns, Unidirectional Data Flow, UI layer passivity, and ViewModel responsibilities.
+- [`guardian-android-modularization`](skills/guardian-android-modularization/SKILL.md) — enforce Gradle module graph correctness, dependency direction, and granularity.
+- [`guardian-package-architecture`](skills/guardian-package-architecture/SKILL.md) — evolve project structure from layer-first to feature-first and validate boundaries.
 
 ### Quality & Testing
 
-- [`android-testing-guardian`](skills/android-testing-guardian/SKILL.md) — analyze test coverage and add missing tests for domain, data, presentation, and UI layers. Identifies testability blockers.
-- [`android-testability-guardian`](skills/android-testability-guardian/SKILL.md) — eliminate static coupling and hidden dependencies; enforce UI layer boundaries in Compose (business logic in Composables, ViewModel smells, side-effect misuse, hardcoded values); decide when a new abstraction is justified using a three-layer pragmatic filter.
+- [`guardian-android-testing`](skills/guardian-android-testing/SKILL.md) — analyze test coverage and identify missing tests for domain, data, presentation, and UI layers.
+- [`guardian-android-testability`](skills/guardian-android-testability/SKILL.md) — eliminate static coupling and hidden dependencies; enforce UI layer boundaries in Compose.
 
 ## License
 
