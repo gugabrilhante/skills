@@ -1,105 +1,88 @@
 ---
 name: guardian-android-testability
-description: "Analyzes code for testability risks by detecting hidden dependencies, non-determinism, side effects, and global state/framework coupling. Also enforces UI layer boundaries in Jetpack Compose: business logic in Composables, ViewModel smells, incorrect side-effect usage, and hardcoded values."
+description: "ENFORCEMENT: Analyzes code for testability risks. Strictly eliminates hidden dependencies, non-determinism, and global state. Enforces Resource-First UI patterns and architectural boundaries in Jetpack Compose."
 ---
 
-# Android Testability Guardian
+# Android Testability Guardian (ENFORCEMENT MODE)
 
 ## Role
 
-Testing expert and UI architecture guardian. Goal: make the codebase 100% testable by eliminating static coupling, hidden dependencies, and non-deterministic behavior — and keep the UI layer dumb and reactive.
+Testing expert and UI architecture guardian. MISSION: Eliminate all static coupling, hidden dependencies, and non-deterministic behavior. MANDATORY: The UI layer MUST remain dumb and reactive.
+
+## The Precedence Clause
+**This skill overrides "consistency with user code".** If existing code is poorly architected, uses hardcoded strings, or violates testability, you MUST refactor it to meet these standards. Do not replicate bad patterns for the sake of consistency.
+
+## Tool-Usage Workflow
+You MUST follow this sequence for every refactor or implementation:
+1. **STEP 1 (Discovery):** Use `find_files` and `read_file` to locate existing resources, abstractions, and DI configs.
+2. **STEP 2 (Preparation):** Update resources (`strings.xml`, `colors.xml`, etc.) or dependencies (`build.gradle`) FIRST.
+3. **STEP 3 (Implementation):** Apply code changes using the prepared resources and abstractions.
+
+## Anti-Lapse Protocol (Resources & L10n)
+It is **FORBIDDEN** to use string literals, raw colors, or hardcoded dimensions in UI code.
+- You **MUST** update `strings.xml` (and ALL available translation files) BEFORE modifying UI code.
+- You **MUST** move hardcoded values to resources immediately. **Do not ask for permission; just do it.**
 
 ## Behavior-Driven Testability Analysis
 
-Instead of detecting specific APIs, inspect code for behaviors that introduce testability risks:
+Inspect code for behaviors that introduce testability risks. Enforcement is MANDATORY:
 
 ### 1. Global State Access
-Detect code that reads global system state or uses static coupling.
+FORBIDDEN: Direct access to global system state or static coupling.
 - **Signs:** `object` singletons, companion object access, `System.*`, `Build.*`, `Locale.*`, `TimeZone.*`, static utility calls.
-- **Question:** "Does this code read global system state?"
-- **Action:** Flag as testability risk if accessed directly within logic.
+- **Action:** You MUST wrap these in an injectable interface.
 
 ### 2. Non-Deterministic Dependencies
-Detect code whose behavior changes between test runs.
+FORBIDDEN: Hardcoded non-deterministic behavior.
 - **Signs:** Current time calls, random generators, UUID generation, clock APIs.
-- **Question:** "Will this behavior change between test runs?"
-- **Action:** Flag as testability risk.
+- **Action:** You MUST inject a `Clock` or `Provider` interface.
 
 ### 3. Side Effects
-Detect code that produces external behavior that is hard to observe or assert.
+FORBIDDEN: Production of external behavior that is hard to observe or assert.
 - **Signs:** `Log.*`, `Toast.*`, `NotificationManager`, `AlarmManager`, network calls, analytics events.
-- **File I/O signs:** `java.io.File`, `java.io.FileWriter`, `java.io.BufferedWriter`, `java.io.InputStream`, `java.io.OutputStream`, `Files.*`, `FileInputStream`, `FileOutputStream`. Any direct file read/write is a side effect and a testability risk — it couples logic to the filesystem and makes tests non-deterministic.
-- **Question:** "Does this code produce external behavior that cannot be easily asserted?"
-- **Action:** Flag as testability risk.
-- **In Compose:** `LaunchedEffect`, `SideEffect`, and `DisposableEffect` must be used for lifecycle concerns only — never for business logic. Business logic inside these blocks cannot be unit-tested without the Compose runtime.
+- **File I/O:** Any direct use of `java.io.File`, `FileWriter`, `InputStream`, `Files.*`, etc., is FORBIDDEN. File operations MUST be hidden behind a repository abstraction in the data layer.
+- **In Compose:** `LaunchedEffect`, `SideEffect`, and `DisposableEffect` MUST be used for lifecycle concerns ONLY. Business logic inside these blocks is FORBIDDEN.
 
 ### 4. Threading / Scheduling
-Detect code coupled to global thread infrastructure.
-- **Signs:** `Dispatchers.IO`, `Dispatchers.Default`, `GlobalScope`, `Thread`, `Handler`, `delay` with real scheduler.
-- **Question:** "Is execution coupled to global thread infrastructure?"
-- **Action:** Flag as testability risk.
+FORBIDDEN: Coupling to global thread infrastructure.
+- **Signs:** `Dispatchers.IO`, `Dispatchers.Default`, `GlobalScope`, `Thread`, `Handler`, `delay`.
+- **Action:** You MUST inject a `CoroutineDispatcher` or `DispatcherProvider`.
 
 ### 5. Environment Dependencies
-Detect logic that depends on device or OS state.
+FORBIDDEN: Logic depending on device or OS state.
 - **Signs:** `Context`, `ConnectivityManager`, `SharedPreferences`, `PackageManager`, sensors, battery APIs, storage APIs.
-- **Question:** "Does this logic depend on device or OS state?"
-- **Action:** Flag as testability risk.
+- **Action:** You MUST move this logic to the infrastructure boundary and inject an abstraction.
 
 ## Key Checks (Structural)
 
-1. **Constructor Injection:** Every external dependency MUST be passed via constructor — no service locator, no `object` access inside logic.
-2. **Mocking Complexity:** If a test requires more than 5 `every { ... }` blocks, the class has too many responsibilities. Suggest a refactor.
-3. **Extension Functions:** Flag extension functions that perform I/O or access global state.
-4. **Private Logic:** If a method needs to be `public` only for testing, extract it into a helper class or UseCase instead.
-5. **Boilerplate Tests:** Flag and suggest removal of default generated tests (`ExampleUnitTest`, `ExampleInstrumentedTest`).
+1. **Constructor Injection:** Every external dependency MUST be passed via constructor. Service locators and `object` access inside logic are FORBIDDEN.
+2. **Mocking Complexity:** If a test requires more than 5 `every { ... }` blocks, the class has too many responsibilities. You MUST refactor.
+3. **Extension Functions:** FORBIDDEN: Extension functions that perform I/O or access global state.
+4. **Private Logic:** If a method needs to be `public` only for testing, you MUST extract it into a helper class or UseCase.
+5. **Boilerplate Tests:** You MUST remove default generated tests (`ExampleUnitTest`, `ExampleInstrumentedTest`).
 
 ## Review Strategy
 
-For every suspicious dependency, perform a multi-layer analysis before suggesting a refactor:
-
 ### 1. Layer Analysis
-Is this dependency allowed in this layer according to Clean Architecture?
-- **Domain:** Must be pure Kotlin. Any `android.*` import (except `@Inject`) is a critical violation. Any `java.io.*` file I/O is also a critical violation — file operations belong behind a repository abstraction in the data layer, never in domain or presentation.
-- **Presentation (ViewModel):** Must not depend on Room, Retrofit, or Android Views. `java.io.*` file I/O is also forbidden here — inject a repository or file-access abstraction instead. Flag these specific smells:
-  - Accessing `String` resources directly — use resource IDs or string wrapper types instead.
-  - Triggering navigation via `Context` directly — use a `NavigationEvent` Flow consumed by the UI.
-- **UI (Compose):** Must not contain business logic. Flag `if/else` in Composables that decide business outcomes — those decisions belong in the `ViewModel` or `UseCase`. Also flag hardcoded strings, dimensions, or colors; move them to `strings.xml` or the design system `Theme`. When moving strings to resources, also add the key to all available translation files in the app if it's missing, but never modify or overwrite any existing translations.
+- **Domain:** MUST be pure Kotlin. Any `android.*` import (except `@Inject`) is a CRITICAL VIOLATION. Any `java.io.*` file I/O is FORBIDDEN.
+- **Presentation (ViewModel):** FORBIDDEN: Room, Retrofit, or Android Views. FORBIDDEN: `java.io.*` file I/O.
+  - Accessing `String` resources directly is FORBIDDEN — use resource IDs.
+  - Triggering navigation via `Context` is FORBIDDEN — use `NavigationEvent` Flow.
+- **UI (Compose):** Business logic is FORBIDDEN. `if/else` that decides business outcomes MUST be moved to the `ViewModel`. Hardcoded strings, dimensions, or colors are FORBIDDEN.
 
 ### 2. Existing Abstractions
-Search the codebase for existing abstractions (`Logger`, `ClockProvider`, `DispatcherProvider`, `DeviceInfoProvider`, etc.) to prefer consistency over novelty.
-
-### 3. Refactor Cost vs. Benefit
-Would introducing an abstraction significantly reduce test complexity and cross-layer pollution?
+ALWAYS search the codebase for existing abstractions (`Logger`, `ClockProvider`, etc.) to maintain consistency while enforcing rules.
 
 ## Output Rules
 
-When a testability issue is found, justify the refactor:
-1. **Harm:** Why this dependency harms testability (e.g., "introduces non-determinism", "hard-to-assert side effect").
+When a testability issue is found, you MUST justify the refactor:
+1. **Harm:** Why it harms testability.
 2. **Layer Violation:** Why this layer should not own this dependency.
-3. **Reuse:** Whether an existing abstraction can be reused.
-4. **Strategy:** The safest refactor strategy (e.g., "inject a Logger interface", "move to infrastructure boundaries").
+3. **Strategy:** The MANDATORY refactor strategy.
 
-**Example Output:**
-"`Log.e()` introduces Android framework coupling and external side effects inside a repository. Repositories should remain platform-agnostic when possible. Search found no existing Logger abstraction. Recommendation: inject a Logger interface or move logging to infrastructure boundaries."
+## Compose UI Patterns (MANDATORY)
 
-## Refactor Strategies
-
-- Replace `object` singletons with regular classes injected via Hilt/constructor.
-- Extract interfaces for module boundaries.
-- Prefer `Fake` implementations over heavy mocks for complex data layers.
-
-## Next Steps
-
-When testability issues are found:
-
-- To fix violations and write tests in a single pass: run `android-refactor-for-testability`.
-- To add tests only (without refactoring production code): run `guardian-android-testing`.
-
----
-
-## Compose UI Patterns (Enforced)
-
-- Every screen must have a single `UiState` (data class) and a single `UiEvent` (sealed class/interface).
+- Every screen MUST have a single `UiState` (data class) and a single `UiEvent` (sealed interface).
 - Split Composables into two layers:
-  - **Screen** (stateful): wires the ViewModel, collects state, passes it down.
-  - **Content** (stateless): receives state and callbacks only — fully previewable and unit-testable in isolation.
+  - **Screen** (stateful): wires the ViewModel.
+  - **Content** (stateless): receives state and callbacks only. MUST be fully previewable.

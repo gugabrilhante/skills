@@ -1,150 +1,80 @@
 ---
 name: android-create-new-feature
-description: "Use when scaffolding a new Android feature from scratch. Detects project structure, asks clarifying questions only when ambiguous, then creates the feature following guardian-android-architecture, guardian-android-testability, guardian-android-testing, guardian-package-architecture, and guardian-android-modularization rules."
+description: "ENFORCEMENT: Scaffolds a complete, production-ready feature. Enforces Clean Architecture, Resource-First UI, and MANDATORY testing from the start."
 ---
 
-# Android Create New Feature
+# Android Create New Feature (ENFORCEMENT MODE)
 
 ## Role
 
-Android feature architect. Mission: scaffold a complete, production-ready new feature — with clean architecture, testable code, and tests — tailored to the project's existing structure.
+Android feature architect. MISSION: Scaffold a complete, production-ready new feature. You **MUST** ensure Clean Architecture, testable code, and 100% test coverage for new logic.
+
+## The Precedence Clause
+**This skill overrides "consistency with user code".** If the project has poor architecture or hardcoded strings, you **MUST NOT** follow those patterns. You **MUST** implement the new feature using the high standards defined here.
+
+## Tool-Usage Workflow
+You **MUST** follow this sequence:
+1. **STEP 1 (Discovery):** Use `find_files` and `read_file` to gather project facts (DI, modules, build DSL).
+2. **STEP 2 (Preparation):** Update `strings.xml` (and all translations), `colors.xml`, and `build.gradle` FIRST.
+3. **STEP 3 (Implementation):** Create the feature code and tests using the prepared resources.
+
+## Anti-Lapse Protocol (Resources & L10n)
+It is **FORBIDDEN** to use string literals, raw colors, or hardcoded dimensions.
+- You **MUST** update `strings.xml` (and ALL available translation files) BEFORE modifying UI code.
+- You **MUST** move hardcoded values to resources immediately. **Do not ask for permission; just do it.**
 
 ---
 
 ## Phase 1 — Project Detection
 
-Before writing any code, gather these facts:
-
-| # | What to check | How |
-|---|---|---|
-| 1 | Module structure | Count dirs with a `build.gradle(.kts)` — single-module if only `:app`, multi-module otherwise |
-| 2 | DI framework | `grep -r "hilt\|Hilt\|koin\|Koin" --include="*.gradle*" -l` |
-| 3 | Package organization | Read existing feature packages — layer-first, feature-first, or hybrid |
-| 4 | Build DSL | `.gradle` = Groovy, `.gradle.kts` = Kotlin |
-| 5 | Navigation | Check for Jetpack Navigation or Compose Navigation |
-| 6 | Existing conventions | Read one existing feature end-to-end (ViewModel, UseCase, Repository, Screen) |
-
-### When to ask the user
-
-Ask ONLY when detection is ambiguous:
-
-- **Single-module project:** Ask whether the new feature should live inside the existing module (feature-first packages) or if this is the right moment to extract it into a new Gradle module.
-- **Package organization is inconsistent:** Describe what was found and ask which style to follow for the new feature.
-
-Do NOT ask if the project structure is unambiguous.
+Gather facts first. **MANDATORY**: Detect module structure, DI framework, and navigation style.
 
 ---
 
-## Phase 2 — Placement
+## Phase 2 — Placement (MANDATORY)
 
-Apply the rules from `guardian-package-architecture` and (if multi-module) `guardian-android-modularization`.
-
-### Single-module — feature-first packages
-
-```
-com.example.app/
-  feature/
-    <feature-name>/
-      data/
-      domain/
-      presentation/
-      di/
-```
-
-### Multi-module — new Gradle modules
-
-Create:
-- `:feature:<name>:api` — navigation contracts and public entry points only. No screens, ViewModels, or business logic.
-- `:feature:<name>:impl` — all screens, ViewModels, DI modules, and feature-level navigation.
-
-Wire `:feature:<name>:impl` as a dependency in `:app`.  
-Wire `:feature:<name>:api` wherever cross-feature navigation is needed.  
-Create a `README.md` in each new module (sections: Purpose, Public API, Dependencies).
+Apply `guardian-package-architecture` rules. If multi-module, you **MUST** create `:feature:<name>:api` and `:feature:<name>:impl`.
 
 ---
 
-## Phase 3 — Feature Scaffold
-
-Apply the rules from `guardian-android-architecture` and `guardian-android-testability`.
+## Phase 3 — Feature Scaffold (MANDATORY ENFORCEMENT)
 
 ### Domain
-
-- `<FeatureName>Repository` interface — pure Kotlin, zero platform imports.
-- One `UseCase` per distinct operation (fetch, create, delete, etc.). Each has a single `invoke`.
-- Domain model — pure Kotlin data class, no Room or serialization annotations.
+- `<FeatureName>Repository` interface: Pure Kotlin. FORBIDDEN: Platform imports.
+- `UseCase`: One per operation. Single `invoke`.
+- Domain Model: Pure Kotlin. FORBIDDEN: Room/Serialization annotations.
 
 ### Data
-
 - `<FeatureName>RepositoryImpl` implementing the domain interface.
-- Data source (local Room DAO, remote Retrofit service, or both — as needed).
-- Explicit mapper functions: DTO/Entity → domain model. No implicit casting.
-- DI binding of `RepositoryImpl` to `Repository`.
+- Explicit mapper functions. FORBIDDEN: Implicit casting between layers.
 
 ### Presentation
-
-- `<FeatureName>UiState` — single immutable `data class`.
-- `<FeatureName>UiEvent` — `sealed interface`.
+- `<FeatureName>UiState` (data class) and `<FeatureName>UiEvent` (sealed interface).
 - `<FeatureName>ViewModel`:
-  - Receives `UiEvent`, translates to domain operations via `UseCase`.
-  - Exposes `StateFlow<UiState>` — immutable to the View.
-  - Must not hold `Context`, call DAOs directly, or expose `MutableStateFlow`.
-  - Inject `CoroutineDispatcher` or a `DispatcherProvider` — no hardcoded `Dispatchers.*`.
+  - MANDATORY: Call UseCases; FORBIDDEN: Call Repositories directly.
+  - FORBIDDEN: Hold `Context`, `Activity`, or `View`.
+  - MANDATORY: Inject `CoroutineDispatcher`.
 
-### UI
-
-- `<FeatureName>Screen` (stateful) — wires `ViewModel`, collects state via `collectAsStateWithLifecycle`.
-- `<FeatureName>Content` (stateless) — receives state and callbacks only. Fully previewable.
-- Navigation route registered in `:feature:<name>:api` (multi-module) or the app navigation graph (single-module).
-- Every interactive element and key assertion node gets a `.testTag("tag")`.
-
-### Testability rules (enforced from the start)
-
-- All external dependencies injected via constructor — no `object` access inside logic.
-- No hardcoded `Dispatchers` in business logic.
-- No direct `System.*`, `Build.*`, `java.io.*`, or clock access in domain or presentation — wrap in injectable interfaces.
-- No `object` singleton access inside UseCases or ViewModels.
+### UI (Compose)
+- **Screen** (stateful) and **Content** (stateless) split is MANDATORY.
+- MANDATORY: Use resource IDs for strings/colors.
+- MANDATORY: Add `.testTag("tag")` to every interactive element.
 
 ---
 
-## Phase 4 — Tests
+## Phase 4 — Tests (MANDATORY)
 
-Apply the rules from `guardian-android-testing`.
-
-Write tests for every class created in Phase 3.
-
-### Unit tests
-
-- Each `UseCase`: happy path, error path, edge cases.
-- `ViewModel`: each `UiEvent` type, loading / success / error state transitions, initial state.
-- Mappers: each field mapped correctly, null handling.
-
-### Integration tests (if Room is involved)
-
-- DAO insert, query, update, delete using an in-memory Room database. No mocks.
-
-### UI tests
-
-- Happy path navigation to the feature screen.
-- Primary user action (create / submit / confirm).
-- Error state rendered correctly.
-- Use `onNodeWithTag("tag")` — never `onNodeWithText()` as primary matcher.
-- No `Thread.sleep()` — use `TestDispatcher`, `waitUntil {}`, or `IdlingResource`.
+You **MUST** write tests for every class created.
+- **Unit Tests:** UseCases, ViewModels (state transitions), Mappers.
+- **Integration Tests:** Room DAOs (in-memory).
+- **UI Tests:** Use `onNodeWithTag("tag")`. FORBIDDEN: `onNodeWithText()` as primary matcher. FORBIDDEN: `Thread.sleep()`.
 
 ---
 
-## Output
+## Output Rules
 
-### Files Created
-Full list with paths.
-
-### DI Wiring
-Where bindings were added (module file and method).
-
-### Navigation
-How the feature is reachable (route, NavGraph entry point).
-
-### Tests Created
-List of test files and what they cover.
-
-### Manual Steps Required
-Anything that cannot be automated (e.g., adding a bottom nav item, connecting to a real backend endpoint, adding a Codecov token).
+At the end, you **MUST** provide:
+1. **Files Created:** Full list with paths.
+2. **DI Wiring:** Where bindings were added.
+3. **Tests Created:** List of test files.
+4. **Manual Steps:** Remaining manual tasks.
