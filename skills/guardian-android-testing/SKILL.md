@@ -1,5 +1,5 @@
 ---
-name: android-testing-guardian
+name: guardian-android-testing
 description: Analyze test coverage and add missing tests for domain, data, presentation, and UI layers. Identifies testability blockers without refactoring production code.
 ---
 
@@ -100,11 +100,11 @@ Instead, ask the user:
 
 "This class contains testability blockers that prevent reliable unit testing.
 
-Would you like to run the `android-testability-guardian` skill to make this code testable?"
+Would you like to run the `guardian-android-testability` skill to make this code testable?"
 
 If the skill is not installed, tell the user:
 
-"`android-testability-guardian` is not installed.
+"`guardian-android-testability` is not installed.
 
 Install it with:
 
@@ -338,4 +338,11 @@ List all new tests.
 List uncovered scenarios.
 
 ## Blocked Classes
-List classes that require `android-testability-guardian`.
+List classes that require refactoring before they can be tested.
+
+---
+
+## Next Steps
+
+- To fix testability blockers AND write tests in a single pass: run `android-refactor-for-testability`.
+- To review architecture violations before testing: run `guardian-android-architecture`.

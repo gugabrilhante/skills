@@ -1,5 +1,5 @@
 ---
-name: android-testability-guardian
+name: guardian-android-testability
 description: "Analyzes code for testability risks by detecting hidden dependencies, non-determinism, side effects, and global state/framework coupling. Also enforces UI layer boundaries in Jetpack Compose: business logic in Composables, ViewModel smells, incorrect side-effect usage, and hardcoded values."
 ---
 
@@ -27,7 +27,8 @@ Detect code whose behavior changes between test runs.
 
 ### 3. Side Effects
 Detect code that produces external behavior that is hard to observe or assert.
-- **Signs:** `Log.*`, `Toast.*`, `NotificationManager`, `AlarmManager`, file writes, network calls, analytics events.
+- **Signs:** `Log.*`, `Toast.*`, `NotificationManager`, `AlarmManager`, network calls, analytics events.
+- **File I/O signs:** `java.io.File`, `java.io.FileWriter`, `java.io.BufferedWriter`, `java.io.InputStream`, `java.io.OutputStream`, `Files.*`, `FileInputStream`, `FileOutputStream`. Any direct file read/write is a side effect and a testability risk — it couples logic to the filesystem and makes tests non-deterministic.
 - **Question:** "Does this code produce external behavior that cannot be easily asserted?"
 - **Action:** Flag as testability risk.
 - **In Compose:** `LaunchedEffect`, `SideEffect`, and `DisposableEffect` must be used for lifecycle concerns only — never for business logic. Business logic inside these blocks cannot be unit-tested without the Compose runtime.
@@ -58,8 +59,8 @@ For every suspicious dependency, perform a multi-layer analysis before suggestin
 
 ### 1. Layer Analysis
 Is this dependency allowed in this layer according to Clean Architecture?
-- **Domain:** Must be pure Kotlin. Any `android.*` import (except `@Inject`) is a critical violation.
-- **Presentation (ViewModel):** Must not depend on Room, Retrofit, or Android Views. Flag these specific smells:
+- **Domain:** Must be pure Kotlin. Any `android.*` import (except `@Inject`) is a critical violation. Any `java.io.*` file I/O is also a critical violation — file operations belong behind a repository abstraction in the data layer, never in domain or presentation.
+- **Presentation (ViewModel):** Must not depend on Room, Retrofit, or Android Views. `java.io.*` file I/O is also forbidden here — inject a repository or file-access abstraction instead. Flag these specific smells:
   - Accessing `String` resources directly — use resource IDs or string wrapper types instead.
   - Triggering navigation via `Context` directly — use a `NavigationEvent` Flow consumed by the UI.
 - **UI (Compose):** Must not contain business logic. Flag `if/else` in Composables that decide business outcomes — those decisions belong in the `ViewModel` or `UseCase`. Also flag hardcoded strings, dimensions, or colors; move them to `strings.xml` or the design system `Theme`.
@@ -86,6 +87,15 @@ When a testability issue is found, justify the refactor:
 - Replace `object` singletons with regular classes injected via Hilt/constructor.
 - Extract interfaces for module boundaries.
 - Prefer `Fake` implementations over heavy mocks for complex data layers.
+
+## Next Steps
+
+When testability issues are found:
+
+- To fix violations and write tests in a single pass: run `android-refactor-for-testability`.
+- To add tests only (without refactoring production code): run `guardian-android-testing`.
+
+---
 
 ## Compose UI Patterns (Enforced)
 

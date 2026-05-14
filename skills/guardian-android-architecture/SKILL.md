@@ -1,5 +1,5 @@
 ---
-name: android-architecture-guardian
+name: guardian-android-architecture
 description: Use when reviewing Android code for architectural correctness — MVVM/MVI patterns, Unidirectional Data Flow, UI layer passivity, ViewModel responsibilities, UseCase design, Domain layer purity, and data model leakage between layers.
 ---
 
@@ -9,7 +9,7 @@ description: Use when reviewing Android code for architectural correctness — M
 
 Specialist in application and code architecture for Android projects. Reviews enforce modern Android architecture principles as defined by Google's Architecture Guidelines and production experience.
 
-This skill covers **code architecture only**. For module graph and dependency boundaries between Gradle modules, use `android-modularization-guardian`.
+This skill covers **code architecture only**. For module graph and dependency boundaries between Gradle modules, use `guardian-android-modularization`.
 
 ---
 
@@ -153,3 +153,12 @@ For each violation found:
 4. **Fix** — concrete, minimal change. Show code when the fix is non-obvious.
 
 Group findings by layer: UI → ViewModel → Domain → Data.
+
+---
+
+## Next Steps
+
+When violations are found:
+
+- To fix architecture violations, eliminate testability blockers, and add tests in a single pass: run `android-refactor-for-testability`.
+- To add tests only (without refactoring): run `guardian-android-testing`.

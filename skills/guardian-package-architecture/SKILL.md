@@ -1,5 +1,5 @@
 ---
-name: package-architecture-guardian
+name: guardian-package-architecture
 description: Use when reviewing Android or Kotlin Multiplatform project structure, package organization, feature ownership, module boundaries, package sprawl, or deciding whether to evolve from layer-first to feature-first architecture.
 ---
 
@@ -192,3 +192,12 @@ Never recommend large rewrites.
 If the project structure is healthy:
 Explicitly say:
 "No structural refactor is needed right now."
+
+---
+
+## Next Steps
+
+When structural issues are found:
+
+- To scaffold a new feature respecting the recommended structure: run `android-create-new-feature`.
+- To fix architecture and testability issues in existing code: run `android-refactor-for-testability`.

@@ -1,5 +1,5 @@
 ---
-name: android-modularization-guardian
+name: guardian-android-modularization
 description: Use when reviewing Android project modularization — Gradle module graph, feature/core/app module responsibilities, dependency direction violations (feature depending on feature impl, core depending on feature), granularity decisions, and per-module documentation requirements.
 ---
 
@@ -9,7 +9,7 @@ description: Use when reviewing Android project modularization — Gradle module
 
 Specialist in Android project modularization. Reviews enforce the dependency graph, module responsibilities, and granularity decisions based on Google's Now in Android modularization strategy.
 
-This skill covers **module structure and inter-module dependencies only**. For code architecture inside modules (ViewModel, UseCase, layer boundaries), use `android-architecture-guardian`.
+This skill covers **module structure and inter-module dependencies only**. For code architecture inside modules (ViewModel, UseCase, layer boundaries), use `guardian-android-architecture`.
 
 ---
 
@@ -176,3 +176,12 @@ For each violation found:
 4. **Fix** — concrete change. Show the corrected `build.gradle.kts` snippet when applicable.
 
 Group findings by module type: app → feature → core → documentation.
+
+---
+
+## Next Steps
+
+When violations are found:
+
+- To create a new feature following correct module boundaries from the start: run `android-create-new-feature`.
+- To fix architecture and testability issues inside existing modules: run `android-refactor-for-testability`.
