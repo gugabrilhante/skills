@@ -50,6 +50,8 @@ enableUnitTestCoverage = true
 enableAndroidTestCoverage = true
 ```
 
+> **IMPORTANT:** `enableAndroidTestCoverage = true` causes AGP to add `connectedDebugAndroidTest` as a hard dependency of `jacocoTestReport`. This means `jacocoTestReport` will **always require a connected device or emulator** to run — even in CI. If the coverage workflow will not include an emulator step, set **only** `enableUnitTestCoverage = true` and omit `enableAndroidTestCoverage`.
+
 ---
 
 ### B. Instrumentation runner — `app/build.gradle` `defaultConfig`
@@ -79,7 +81,11 @@ class HiltTestRunner : AndroidJUnitRunner() {
 
 ### C. Root `build.gradle` — JaCoCo aggregated configuration
 
-**[ADAPT — single-module]** Skip this entire section. AGP already creates `:app:jacocoTestReport`. In the coverage workflow (section G) replace `./gradlew jacocoTestReport` with `./gradlew :app:testDebugUnitTest :app:jacocoTestReport` and update the report path to `app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml`.
+**[ADAPT — single-module]** Skip this entire section. AGP already creates `:app:jacocoTestReport`. In the coverage workflow (section G):
+- Replace `./gradlew jacocoTestReport` with `./gradlew :app:testDebugUnitTest :app:jacocoTestReport`
+- Update the `files:` path to `app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml`
+- **If `enableAndroidTestCoverage = true` was NOT set in Section A** (unit-test-only coverage): remove the emulator setup and `connectedDebugAndroidTest` step entirely from the workflow — `jacocoTestReport` will not need a device.
+- **If `enableAndroidTestCoverage = true` WAS set** (full coverage including instrumented tests): keep the emulator runner step, and run `connectedDebugAndroidTest` via `android-emulator-runner` BEFORE running `jacocoTestReport`.
 
 **[ADAPT — Kotlin DSL]** Translate: `def` → `val`, `task X(type: Y)` → `tasks.register<Y>("X")`, closures `{}` → lambdas with explicit `it`.
 
@@ -306,6 +312,8 @@ Step order is mandatory: clean → unit tests → instrumented tests → `jacoco
 `--rerun-tasks` is required: Gradle doesn't detect `.ec` files written by the emulator and skips the task as UP-TO-DATE without it.
 
 `[ADAPT — single-module]` Replace `jacocoTestReport` with `:app:jacocoTestReport` and update the `files:` path to `app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml`.
+
+> **Root cause of `No connected devices!` in CI:** If you set `enableAndroidTestCoverage = true`, AGP wires `connectedDebugAndroidTest` as a dependency of `jacocoTestReport`. Running `jacocoTestReport` directly in CI without an emulator runner will always fail with this error. Fix: either (a) use only `enableUnitTestCoverage = true` and remove the emulator step, or (b) keep `enableAndroidTestCoverage = true` and ensure `connectedDebugAndroidTest` runs inside `android-emulator-runner` **before** `jacocoTestReport`.
 
 ```yaml
 name: Coverage
