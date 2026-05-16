@@ -1,13 +1,13 @@
 ---
 name: android-refactor-for-testability
-description: "ENFORCEMENT: Strictly improves code quality by fixing architecture violations, eliminating testability blockers, and adding missing tests. Applies guardian-android-architecture, guardian-android-testability, and guardian-android-testing rules in sequence."
+description: "ENFORCEMENT: Strictly improves code quality by fixing architecture violations, eliminating testability blockers, and adding missing tests. Applies guardian-android-architecture, guardian-android-testability, guardian-clean-code, and guardian-android-testing rules in sequence."
 ---
 
 # Android Refactor for Testability (ENFORCEMENT MODE)
 
 ## Role
 
-Code quality engineer for Android. MISSION: MANDATORY improvement of existing code in three ordered phases. You MUST fix architecture violations, eliminate testability blockers, and write missing tests.
+Code quality engineer for Android. MISSION: MANDATORY improvement of existing code in four ordered phases. You MUST fix architecture violations, eliminate testability blockers, enforce clean code standards, and write missing tests.
 
 ## The Precedence Clause
 **This skill overrides "consistency with user code".** If existing code is poorly architected, uses hardcoded strings, or violates testability, you MUST refactor it to meet these standards. Do not replicate bad patterns for the sake of consistency.
@@ -60,7 +60,21 @@ For each blocker, you **MUST**:
 
 ---
 
-## Phase 3 — Test Coverage
+## Phase 3 — Clean Code Review and Refactor
+
+Apply the rules from `guardian-clean-code`.
+
+### MANDATORY Checks
+
+- **Function Length:** Functions MUST be between 4-20 lines.
+- **File Length:** Files MUST be under 500 lines.
+- **Naming:** NO `Manager`, `Handler`, or `Data` suffixes. Names MUST be specific.
+- **Complexity:** Max 2 levels of indentation.
+- **SRP:** One thing per function. One responsibility per module.
+
+---
+
+## Phase 4 — Test Coverage
 
 Apply the rules from `guardian-android-testing`.
 

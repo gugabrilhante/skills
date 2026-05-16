@@ -71,6 +71,7 @@ These skills define the standards and provide guidance on best practices.
 
 - [`guardian-android-testing`](skills/guardian-android-testing/SKILL.md) — analyze test coverage and identify missing tests for domain, data, presentation, and UI layers.
 - [`guardian-android-testability`](skills/guardian-android-testability/SKILL.md) — eliminate static coupling and hidden dependencies; enforce UI layer boundaries in Compose.
+- [`guardian-clean-code`](skills/guardian-clean-code/SKILL.md) — enforce SRP, strict naming conventions, small functions/files, and high readability standards.
 
 ## License
 

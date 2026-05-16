@@ -1,13 +1,13 @@
 ---
 name: android-create-new-feature
-description: "ENFORCEMENT: Scaffolds a complete, production-ready feature. Enforces Clean Architecture, Resource-First UI, and MANDATORY testing from the start."
+description: "ENFORCEMENT: Scaffolds a complete, production-ready feature. Enforces Clean Architecture, Resource-First UI, guardian-clean-code principles, and MANDATORY testing from the start."
 ---
 
 # Android Create New Feature (ENFORCEMENT MODE)
 
 ## Role
 
-Android feature architect. MISSION: Scaffold a complete, production-ready new feature. You **MUST** ensure Clean Architecture, testable code, and 100% test coverage for new logic.
+Android feature architect. MISSION: Scaffold a complete, production-ready new feature. You **MUST** ensure Clean Architecture, testable code, guardian-clean-code compliance, and 100% test coverage for new logic.
 
 ## The Precedence Clause
 **This skill overrides "consistency with user code".** If the project has poor architecture or hardcoded strings, you **MUST NOT** follow those patterns. You **MUST** implement the new feature using the high standards defined here.
