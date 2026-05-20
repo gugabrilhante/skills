@@ -35,25 +35,25 @@ Use these skills to execute specific tasks in your project. They analyze your co
 ### 🚀 Create New Feature
 Scaffold a complete, production-ready feature enforcing ALL Guardian standards: Architecture, Modularization (if applicable), Package structure, Testability, Clean Code, and Testing.
 - **Skill:** [`android-create-new-feature`](skills/android-create-new-feature/SKILL.md)
-- **Como usar:**
-  Carregue a skill e execute o prompt:
-  > "Crie uma nova feature de [Nome da Feature] que [Descrição das funcionalidades]"
+- **How to use:**
+  Load the skill and run the prompt:
+  > "Create a new [Feature Name] feature that [Description of functionalities]"
 
 ### 🛠 Refactor for Testability
-Eliminate technical debt, fix architecture violations, and improve test coverage while maintaining test suite stability. Pode ser usada também para fazer pequenas correções de bugs garantindo que o código resultante seja testável e possua cobertura.
+Eliminate technical debt, fix architecture violations, and improve test coverage while maintaining test suite stability. It can also be used for small bug fixes, ensuring the resulting code is testable and has coverage.
 - **Skill:** [`android-refactor-for-testability`](skills/android-refactor-for-testability/SKILL.md)
-- **Como usar:**
-  Carregue a skill e execute um dos prompts:
-  > "Analise a classe [NomeDaClasse] e refatore para melhorar a testabilidade"
-  > "Revise o módulo [nome-do-modulo] e adicione os testes que faltam"
-  > "Corrija o bug [descrição do bug] garantindo a testabilidade da solução"
+- **How to use:**
+  Load the skill and run one of the prompts:
+  > "Analyze the [ClassName] class and refactor to improve testability"
+  > "Review the [module-name] module and add missing tests"
+  > "Fix the bug [bug description] while ensuring solution testability"
 
 ### ⚙️ Setup CI & Coverage
-Configura automaticamente pipelines de CI robustos no GitHub Actions. Analisa o projeto (DI, Build DSL, módulos) para criar workflows de build, testes (Unit & UI) e relatórios de cobertura (JaCoCo + Codecov).
+Automatically configures robust CI pipelines in GitHub Actions. Analyzes the project (DI, Build DSL, modules) to create build, test (Unit & UI), and coverage report (JaCoCo + Codecov) workflows.
 - **Skill:** [`android-setup-ci-and-coverage-report`](skills/android-setup-ci-and-coverage-report/SKILL.md)
-- **Como usar:**
-  Carregue a skill e execute o prompt:
-  > "Configure o CI e relatório de cobertura para este projeto"
+- **How to use:**
+  Load the skill and run the prompt:
+  > "Configure CI and coverage report for this project"
 
 ---
 
