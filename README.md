@@ -33,14 +33,14 @@ git --version
 Use these skills to execute specific tasks in your project. They analyze your codebase and perform complex operations automatically.
 
 ### 🚀 Create New Feature
-Scaffold a complete, production-ready feature with Clean Architecture, DI, and tests.
+Scaffold a complete, production-ready feature enforcing ALL Guardian standards: Architecture, Modularization (if applicable), Package structure, Testability, Clean Code, and Testing.
 - **Skill:** [`android-create-new-feature`](skills/android-create-new-feature/SKILL.md)
 - **Como usar:**
   Carregue a skill e execute o prompt:
   > "Crie uma nova feature de [Nome da Feature] que [Descrição das funcionalidades]"
 
 ### 🛠 Refactor for Testability
-Eliminate technical debt, fix architecture violations, and improve test coverage. Pode ser usada também para fazer pequenas correções de bugs garantindo que o código resultante seja testável e possua cobertura.
+Eliminate technical debt, fix architecture violations, and improve test coverage while maintaining test suite stability. Pode ser usada também para fazer pequenas correções de bugs garantindo que o código resultante seja testável e possua cobertura.
 - **Skill:** [`android-refactor-for-testability`](skills/android-refactor-for-testability/SKILL.md)
 - **Como usar:**
   Carregue a skill e execute um dos prompts:

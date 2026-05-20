@@ -1,80 +1,56 @@
 ---
 name: android-create-new-feature
-description: "ENFORCEMENT: Scaffolds a complete, production-ready feature. Enforces Clean Architecture, Resource-First UI, guardian-clean-code principles, and MANDATORY testing from the start."
+description: "ENFORCEMENT: Scaffolds a complete feature by orchestrating all Guardian standards. Focuses on workflow and placement."
 ---
 
 # Android Create New Feature (ENFORCEMENT MODE)
 
 ## Role
-
-Android feature architect. MISSION: Scaffold a complete, production-ready new feature. You **MUST** ensure Clean Architecture, testable code, guardian-clean-code compliance, and 100% test coverage for new logic.
+Android feature architect. MISSION: Scaffold a complete, production-ready feature. You **MUST** ensure full compliance with all Guardian standards to avoid any future refactoring.
 
 ## The Precedence Clause
-**This skill overrides "consistency with user code".** If the project has poor architecture or hardcoded strings, you **MUST NOT** follow those patterns. You **MUST** implement the new feature using the high standards defined here.
+**This skill overrides "consistency with user code".** Implement the new feature using the high standards defined in the referenced Guardian skills, regardless of existing project patterns.
 
 ## Tool-Usage Workflow
-You **MUST** follow this sequence:
-1. **STEP 1 (Discovery):** Use `find_files` and `read_file` to gather project facts (DI, modules, build DSL).
-2. **STEP 2 (Preparation):** Update `strings.xml` (and all translations), `colors.xml`, and `build.gradle` FIRST.
-3. **STEP 3 (Implementation):** Create the feature code and tests using the prepared resources.
-
-## Anti-Lapse Protocol (Resources & L10n)
-It is **FORBIDDEN** to use string literals, raw colors, or hardcoded dimensions.
-- You **MUST** update `strings.xml` (and ALL available translation files) BEFORE modifying UI code.
-- You **MUST** move hardcoded values to resources immediately. **Do not ask for permission; just do it.**
+1. **Discovery:** Use `find_files`/`read_file` to detect DI, modules, and navigation.
+2. **Resources:** Update `strings.xml` (all languages) and `colors.xml` FIRST.
+3. **Implementation:** Create code and tests following the phases below.
 
 ---
 
-## Phase 1 — Project Detection
+## Phase 1 — Structure & Modularization (MANDATORY)
 
-Gather facts first. **MANDATORY**: Detect module structure, DI framework, and navigation style.
-
----
-
-## Phase 2 — Placement (MANDATORY)
-
-Apply `guardian-package-architecture` rules. If multi-module, you **MUST** create `:feature:<name>:api` and `:feature:<name>:impl`.
+1. **Modularization:** Apply `guardian-android-modularization`. 
+   - If multi-module: Create `:feature:<name>:api` and `:feature:<name>:impl`.
+2. **Packages:** Apply `guardian-package-architecture`. Use feature-first: `feature/<name>/{data, domain, presentation}`.
 
 ---
 
-## Phase 3 — Feature Scaffold (MANDATORY ENFORCEMENT)
+## Phase 2 — Implementation Standards (MANDATORY)
 
-### Domain
-- `<FeatureName>Repository` interface: Pure Kotlin. FORBIDDEN: Platform imports.
-- `UseCase`: One per operation. Single `invoke`.
-- Domain Model: Pure Kotlin. FORBIDDEN: Room/Serialization annotations.
+You **MUST** implement the feature by strictly following these specifications:
 
-### Data
-- `<FeatureName>RepositoryImpl` implementing the domain interface.
-- Explicit mapper functions. FORBIDDEN: Implicit casting between layers.
-
-### Presentation
-- `<FeatureName>UiState` (data class) and `<FeatureName>UiEvent` (sealed interface).
-- `<FeatureName>ViewModel`:
-  - MANDATORY: Call UseCases; FORBIDDEN: Call Repositories directly.
-  - FORBIDDEN: Hold `Context`, `Activity`, or `View`.
-  - MANDATORY: Inject `CoroutineDispatcher`.
-
-### UI (Compose)
-- **Screen** (stateful) and **Content** (stateless) split is MANDATORY.
-- MANDATORY: Use resource IDs for strings/colors.
-- MANDATORY: Add `.testTag("tag")` to every interactive element.
+1. **Architecture:** Apply `guardian-android-architecture`. 
+   - *Key Enforcement:* Pure Domain, UI/Content split, and explicit Mappers.
+2. **Testability:** Apply `guardian-android-testability`. 
+   - *Key Enforcement:* Constructor injection for all dependencies and dispatchers.
+3. **Clean Code:** Apply `guardian-clean-code`. 
+   - *Key Enforcement:* Strict naming (no `Manager`/`Data` suffixes) and SRP.
 
 ---
 
-## Phase 4 — Tests (MANDATORY)
+## Phase 3 — Testing (MANDATORY)
 
-You **MUST** write tests for every class created.
-- **Unit Tests:** UseCases, ViewModels (state transitions), Mappers.
-- **Integration Tests:** Room DAOs (in-memory).
-- **UI Tests:** Use `onNodeWithTag("tag")`. FORBIDDEN: `onNodeWithText()` as primary matcher. FORBIDDEN: `Thread.sleep()`.
+Apply `guardian-android-testing` to achieve 100% coverage for new logic:
+- **Unit:** UseCases, ViewModels, and Mappers.
+- **Integration:** Repository/DAO logic.
+- **UI:** key journeys using `testTag` matchers.
 
 ---
 
 ## Output Rules
-
-At the end, you **MUST** provide:
+Provide:
 1. **Files Created:** Full list with paths.
-2. **DI Wiring:** Where bindings were added.
-3. **Tests Created:** List of test files.
-4. **Manual Steps:** Remaining manual tasks.
+2. **DI Wiring:** Summary of bindings added.
+3. **Guardian Compliance:** List of Guardian skills applied.
+4. **Manual Steps:** Remaining tasks.
