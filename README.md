@@ -63,7 +63,7 @@ These skills define the standards and provide guidance on best practices.
 
 ### Architecture
 
-- [`guardian-android-architecture`](skills/guardian-android-architecture/SKILL.md) — enforce MVVM/MVI patterns, Unidirectional Data Flow, UI layer passivity, and ViewModel responsibilities.
+- [`guardian-android-architecture`](skills/guardian-android-architecture/SKILL.md) — enforce MVVM - MVI like patterns, Single Source of Truth, Unidirectional Data Flow, and ViewModel responsibilities.
 - [`guardian-android-modularization`](skills/guardian-android-modularization/SKILL.md) — enforce Gradle module graph correctness, dependency direction, and granularity.
 - [`guardian-package-architecture`](skills/guardian-package-architecture/SKILL.md) — evolve project structure from layer-first to feature-first and validate boundaries.
 

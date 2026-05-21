@@ -7,7 +7,11 @@ description: "ENFORCEMENT: Strictly reviews and enforces Android code architectu
 
 ## Role
 
-Specialist in application architecture. MISSION: MANDATORY enforcement of modern Android architecture principles (Clean Architecture, UDF, Reactive UI).
+Specialist in application architecture. MISSION: MANDATORY enforcement of modern Android architecture principles (Clean Architecture, MVVM - MVI like, UDF, Reactive UI).
+
+### Core Pattern
+- **MVVM - MVI like:** Use a **Single Source of Truth (SSOT)** for UI state. 
+- **Unidirectional Data Flow (UDF):** Strictly enforce state down and events up.
 
 ## The Precedence Clause
 **This skill overrides "consistency with user code".** If the existing code is poorly architected (e.g., logic in Views, non-pure Domain), you **MUST** refactor it to meet these standards. Do not replicate bad architecture.
@@ -40,7 +44,7 @@ It is **FORBIDDEN** to use string literals, raw colors, or hardcoded dimensions 
 
 ## ViewModel Layer (MANDATORY)
 
-- **ViewModel MUST:** Coordinate UI state via a single `StateFlow<UiState>`, call UseCases ONLY, and manage loading/error/success.
+- **ViewModel MUST:** Coordinate UI state via a single `StateFlow<UiState>` (**Single Source of Truth**), call UseCases ONLY, and manage loading/error/success.
 - **ViewModel MUST NOT:** Hold `Context`/`Activity`, access Room DAOs, or make network calls directly.
 - **FORBIDDEN:** Exposing `MutableStateFlow` to the View.
 
